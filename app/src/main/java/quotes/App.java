@@ -6,10 +6,10 @@ package quotes;
 import com.google.gson.Gson;
 import com.google.common.reflect.TypeToken;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Random;
 
@@ -17,10 +17,48 @@ public class App {
 
 
     public static void main(String[] args) throws FileNotFoundException {
-        System.out.println(getInfQuote());
+        String path = "./app/src/main/resources/file.json";
+        String HttpUrl = "http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en";
+//        System.out.println(getInfQuote(path));
+        dataFromApi(HttpUrl);
 
     }
+    public static String dataFromApi(String  apiUrl){
+        StringBuilder newline = new StringBuilder();
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect.setRequestMethod("GET");
 
+            int status = connect.getResponseCode();
+
+            if(status == 200){
+                InputStream input = connect.getInputStream();
+                InputStreamReader reader = new InputStreamReader(input);
+                BufferedReader bufferedReader = new BufferedReader(reader);
+                String line = bufferedReader.readLine();
+                newline = new StringBuilder(line);
+                while(line != null){
+                    System.out.println(line);
+                    line = bufferedReader.readLine();
+                    if (line != null) {
+                        newline.append(line);
+                    }
+                }
+                bufferedReader.close();
+                FileWriter fileToWrite = new FileWriter("app/src/main/resources/newQuote.json");
+                fileToWrite.write(newline.toString());
+                fileToWrite.close();
+            } else{
+                System.out.println("da error "+status);
+                getInfQuote();
+            }
+            connect.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return newline.toString();
+    }
 
     public static String getInfQuote() throws FileNotFoundException {
         Gson gson = new Gson();
