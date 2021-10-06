@@ -18,13 +18,20 @@ class AppTest {
 
     @Test
     void testQuote() {
-        Quote test= new Quote();
+        Quote test = new Quote();
         try {
             assertEquals("Quote{" + "author='" + test.getAuthor() + '\''
-                    + ", text='" + test.getText() + '\'' + '}',
+                            + ", text='" + test.getText() + '\'' + '}',
                     App.getInfQuote(), "xxxxxxxxxxxxxxxxxxxxxxxx");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    void testApiReader() {
+        String urlApi = "http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en";
+        String testQuote = App.dataFromApi(urlApi);
+        assertTrue(testQuote != null);
     }
 }
